@@ -1,4 +1,8 @@
-﻿import { useMemo } from 'react'
+﻿import CheckoutPanel from './CheckoutPanel.jsx'
+import CashierDetector from './CashierDetector.jsx'
+import CartPanel from './CartPanel.jsx'
+import useShoppingCart from './useShoppingCart.js'
+import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { useEffect } from 'react'
@@ -230,21 +234,41 @@ function Supermarket() {
 }
 
 export default function App() {
+  const { cart, addItem, removeItem, clearCart, total, itemCount } = useShoppingCart()
+  const [cashierNearby, setCashierNearby] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
   const [targetProduct, setTargetProduct] = useState(null)
   const [inspectedProduct, setInspectedProduct] = useState(null)
 
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [orderConfirmed, setOrderConfirmed] = useState(false)
+
   useEffect(() => {
-    const handleInspect = (event) => {
-      if (event.code === 'KeyE' && targetProduct && !inspectedProduct) {
+    const handleInteraction = (event) => {
+      if (event.code !== 'KeyE' || event.repeat) return
+      if (inspectedProduct || cartOpen || checkoutOpen || orderConfirmed) return
+
+      if (cashierNearby) {
+        event.preventDefault()
+        setCheckoutOpen(true)
+        document.exitPointerLock?.()
+      } else if (targetProduct) {
         event.preventDefault()
         setInspectedProduct(targetProduct)
         document.exitPointerLock?.()
       }
     }
 
-    window.addEventListener('keydown', handleInspect)
-    return () => window.removeEventListener('keydown', handleInspect)
-  }, [targetProduct, inspectedProduct])
+    window.addEventListener('keydown', handleInteraction)
+    return () => window.removeEventListener('keydown', handleInteraction)
+  }, [targetProduct, inspectedProduct, cashierNearby, cartOpen, checkoutOpen, orderConfirmed])
+
+  const confirmDemoOrder = () => {
+    if (cart.length === 0) return
+    clearCart()
+    setCheckoutOpen(false)
+    setOrderConfirmed(true)
+  }
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas shadows camera={{ position: [12, 12, 18], fov: 55 }}>
@@ -265,7 +289,48 @@ export default function App() {
         <Supermarket />
         <FirstPersonController />
         <ProductDetector onTargetChange={setTargetProduct} />
+        <CashierDetector onNearbyChange={setCashierNearby} />
       </Canvas>
+      <button
+        type='button'
+        aria-label='Open shopping cart'
+        onClick={() => { document.exitPointerLock?.(); setCartOpen(true) }}
+        style={{
+          position: 'fixed',
+          top: '24px',
+          right: '24px',
+          padding: '10px 14px',
+          background: '#294d46',
+          color: '#ffffff',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          border: 'none',
+          zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
+        }}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="9" cy="20" r="1.4" />
+          <circle cx="18" cy="20" r="1.4" />
+          <path d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H7" />
+        </svg>
+        <span>{itemCount}</span>
+      </button>
       <div
         aria-label="Aim crosshair"
         style={{
@@ -324,13 +389,100 @@ export default function App() {
           Press E to inspect
         </div>
       )}
+      {cartOpen && (
+        <CartPanel
+          cart={cart}
+          total={total}
+          onRemove={removeItem}
+          onClose={() => setCartOpen(false)}
+        />
+      )}
+      {cashierNearby && !cartOpen && !inspectedProduct && !checkoutOpen && !orderConfirmed && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '15%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '12px 20px',
+            background: 'rgba(0,0,0,0.78)',
+            color: '#ffffff',
+            borderRadius: '6px',
+            fontSize: '14px',
+            pointerEvents: 'none',
+            zIndex: 10,
+          }}
+        >
+          Press E to Checkout
+        </div>
+      )}
+      {checkoutOpen && (
+        <CheckoutPanel
+          cart={cart}
+          total={total}
+          onClose={() => setCheckoutOpen(false)}
+          onConfirm={confirmDemoOrder}
+        />
+      )}
+
+      {orderConfirmed && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Demo order confirmation"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            background: 'rgba(12,15,18,0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div style={{
+            width: '100%',
+            maxWidth: '420px',
+            padding: '32px',
+            background: '#f5f2e9',
+            color: '#242424',
+            textAlign: 'center',
+          }}>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for shopping at our Japanese Konbini.</p>
+            <p style={{ fontSize: '13px', color: '#777' }}>
+              Demo order only. No real payment was processed.
+            </p>
+            <button
+              onClick={() => setOrderConfirmed(false)}
+              style={{
+                marginTop: '20px',
+                padding: '14px 24px',
+                border: 0,
+                background: '#294d46',
+                color: '#fff',
+                cursor: 'pointer',
+              }}
+            >
+              BACK TO STORE
+            </button>
+          </div>
+        </div>
+      )}
       <ProductInspection
         product={inspectedProduct}
+        onAddToCart={addItem}
         onClose={() => setInspectedProduct(null)}
       />
     </div>
   )
 }
+
+
+
+
+
 
 
 

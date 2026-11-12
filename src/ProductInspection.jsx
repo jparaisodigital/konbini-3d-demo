@@ -4,7 +4,7 @@
   bottle: { name: 'Fresh Daily Drink', price: 89, category: 'Beverages' },
 }
 
-export default function ProductInspection({ product, onClose }) {
+export default function ProductInspection({ product, onClose, onAddToCart }) {
   if (!product) return null
 
   const details = productDetails[product.type] || productDetails.box
@@ -86,6 +86,25 @@ export default function ProductInspection({ product, onClose }) {
         </p>
 
         <button
+          onClick={() => {
+            onAddToCart(product)
+            onClose()
+          }}
+          style={{
+            width: '100%',
+            padding: '14px',
+            marginBottom: '10px',
+            background: '#477469',
+            color: '#fff',
+            border: 0,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          ADD TO CART
+        </button>
+
+        <button
           onClick={onClose}
           style={{
             width: '100%',
@@ -103,3 +122,4 @@ export default function ProductInspection({ product, onClose }) {
     </div>
   )
 }
+
