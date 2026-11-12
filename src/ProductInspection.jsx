@@ -1,7 +1,11 @@
-﻿const productDetails = {
-  box: { name: 'Everyday Cereal', price: 149, category: 'Breakfast & Pantry' },
-  can: { name: 'Classic Canned Goods', price: 65, category: 'Canned Food' },
-  bottle: { name: 'Fresh Daily Drink', price: 89, category: 'Beverages' },
+﻿import ProductPreview from './ProductPreview.jsx'
+const productDetails = {
+  box: { name: 'Konbini Crunch Cereal', price: 149, category: 'Breakfast & Pantry' },
+  ramen: { name: 'Tokyo Cup Ramen', price: 79, category: 'Instant Noodles' },
+  chips: { name: 'Golden Potato Chips', price: 65, category: 'Snacks' },
+  can: { name: 'Retro Canned Coffee', price: 55, category: 'Coffee & Drinks' },
+  bottle: { name: 'Japanese Bottled Tea', price: 89, category: 'Beverages' },
+  sticks: { name: 'Sweet Snack Sticks', price: 99, category: 'Sweet Snacks' },
 }
 
 export default function ProductInspection({ product, onClose, onAddToCart }) {
@@ -62,15 +66,7 @@ export default function ProductInspection({ product, onClose, onAddToCart }) {
             marginBottom: '24px',
           }}
         >
-          <div
-            style={{
-              width: product.type === 'box' ? '90px' : '65px',
-              height: '115px',
-              background: product.color,
-              borderRadius: product.type === 'box' ? '3px' : '20px',
-              boxShadow: '12px 14px 25px rgba(0,0,0,0.15)',
-            }}
-          />
+          <ProductPreview product={product} />
         </div>
 
         <p style={{ fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase' }}>
@@ -122,4 +118,6 @@ export default function ProductInspection({ product, onClose, onAddToCart }) {
     </div>
   )
 }
+
+
 

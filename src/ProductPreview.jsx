@@ -1,51 +1,39 @@
-﻿import { Canvas, useFrame } from '@react-three/fiber'
-import { useRef } from 'react'
-import { Environment } from '@react-three/drei'
+﻿import { useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import GroceryProduct from './GroceryProduct.jsx'
 
-function PreviewModel({ type, color }) {
-  const model = useRef()
+function RotatingProduct({ product }) {
+  const group = useRef()
 
   useFrame((_, delta) => {
-    if (model.current) model.current.rotation.y += delta * 0.6
+    if (group.current) {
+      group.current.rotation.y += delta * 0.55
+    }
   })
 
   return (
-    <group ref={model}>
-      {type === 'can' ? (
-        <mesh castShadow>
-          <cylinderGeometry args={[0.48, 0.48, 1.5, 32]} />
-          <meshStandardMaterial color={color} metalness={0.3} roughness={0.4} />
-        </mesh>
-      ) : type === 'bottle' ? (
-        <group>
-          <mesh castShadow>
-            <cylinderGeometry args={[0.4, 0.4, 1.4, 24]} />
-            <meshStandardMaterial color={color} roughness={0.35} />
-          </mesh>
-          <mesh position={[0, 0.85, 0]} castShadow>
-            <cylinderGeometry args={[0.19, 0.19, 0.35, 24]} />
-            <meshStandardMaterial color="#f3e9d2" />
-          </mesh>
-        </group>
-      ) : (
-        <mesh castShadow>
-          <boxGeometry args={[1.1, 1.7, 0.55]} />
-          <meshStandardMaterial color={color} roughness={0.65} />
-        </mesh>
-      )}
+    <group ref={group} rotation={[0, -0.3, 0]}>
+      <GroceryProduct
+        type={product.type}
+        color={product.color}
+        scale={2.2}
+      />
     </group>
   )
 }
 
-export default function ProductPreview({ type, color }) {
+export default function ProductPreview({ product }) {
+  if (!product) return null
+
   return (
-    <div style={{ width: '100%', height: '180px', background: '#e7e2d7' }}>
-      <Canvas camera={{ position: [2.8, 1.7, 3.4], fov: 35 }}>
-        <ambientLight intensity={1.4} />
-        <directionalLight position={[3, 5, 4]} intensity={2.5} />
-        <Environment preset="studio" />
-        <PreviewModel type={type} color={color} />
-      </Canvas>
-    </div>
+    <Canvas
+      camera={{ position: [0, 0.15, 2.7], fov: 38 }}
+      dpr={[1, 1.5]}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <ambientLight intensity={1.8} />
+      <directionalLight position={[3, 4, 5]} intensity={2} />
+      <RotatingProduct product={product} />
+    </Canvas>
   )
 }

@@ -1,9 +1,12 @@
 ﻿import { useState } from 'react'
 
 const PRODUCT_DETAILS = {
-  box: { name: 'Everyday Cereal', price: 149 },
-  can: { name: 'Classic Canned Goods', price: 65 },
-  bottle: { name: 'Fresh Daily Drink', price: 89 },
+  box: { name: 'Konbini Crunch Cereal', price: 149 },
+  ramen: { name: 'Tokyo Cup Ramen', price: 79 },
+  chips: { name: 'Golden Potato Chips', price: 65 },
+  can: { name: 'Retro Canned Coffee', price: 55 },
+  bottle: { name: 'Japanese Bottled Tea', price: 89 },
+  sticks: { name: 'Sweet Snack Sticks', price: 99 },
 }
 
 export default function useShoppingCart() {
@@ -62,3 +65,4 @@ export default function useShoppingCart() {
     itemCount,
   }
 }
+

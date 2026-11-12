@@ -1,4 +1,14 @@
-﻿import CheckoutPanel from './CheckoutPanel.jsx'
+﻿import CheckoutSign from './CheckoutSign.jsx'
+import ShoppingBasket from './ShoppingBasket.jsx'
+import BarcodeScanner from './BarcodeScanner.jsx'
+import CashierPOS from './CashierPOS.jsx'
+import KonbiniPoster from './KonbiniPoster.jsx'
+import KonbiniCeiling from './KonbiniCeiling.jsx'
+import ShelfPriceTag from './ShelfPriceTag.jsx'
+import ShelfSign from './ShelfSign.jsx'
+import TiledFloor from './TiledFloor.jsx'
+import OrderReceipt from './OrderReceipt.jsx'
+import CheckoutPanel from './CheckoutPanel.jsx'
 import CashierDetector from './CashierDetector.jsx'
 import CartPanel from './CartPanel.jsx'
 import useShoppingCart from './useShoppingCart.js'
@@ -13,7 +23,7 @@ import GroceryProduct from './GroceryProduct.jsx'
 import { Canvas } from '@react-three/fiber'
 import FirstPersonController from './FirstPersonController.jsx'
 
-function Shelf({ position }) {
+function Shelf({ position, products, category }) {
   const levels = [0.25, 0.85, 1.45, 2.05]
 
   return (
@@ -45,7 +55,7 @@ function Shelf({ position }) {
       {/* Grocery products */}
       {[0.25, 0.85, 1.45].map((level, row) =>
         Array.from({ length: 10 }, (_, i) => {
-          const types = ['box', 'can', 'bottle']
+          const types = products
           const colors = ['#e8a23c', '#e85d4a', '#69a9a0', '#a67bc2', '#e0cf69']
 
           return (
@@ -60,11 +70,38 @@ function Shelf({ position }) {
         })
       )}
 
+      {/* Individual product shelf price tags */}
+      {[0.25, 0.85, 1.45].map((level, row) =>
+        Array.from({ length: 10 }, (_, i) => {
+          const type = products[(i + row) % products.length]
+          const x = -2.15 + i * 0.47
+
+          return (
+            <group key={`price-${row}-${i}`}>
+              <group position={[x, level + 0.01, 0.815]}>
+                <ShelfPriceTag type={type} />
+              </group>
+              <group position={[x, level + 0.01, -0.815]} rotation={[0, Math.PI, 0]}>
+                <ShelfPriceTag type={type} />
+              </group>
+            </group>
+          )
+        })
+      )}
+
       {/* Top header */}
       <mesh position={[0, 2.5, 0]}>
         <boxGeometry args={[5, 0.35, 1.7]} />
         <meshStandardMaterial color="#d9503d" />
       </mesh>
+
+      {/* Japanese aisle category signs - visible from both sides */}
+      <group position={[0, 2.5, 0.91]}>
+        <ShelfSign category={category} />
+      </group>
+      <group position={[0, 2.5, -0.91]}>
+        <ShelfSign category={category} />
+      </group>
     </group>
   )
 }
@@ -125,15 +162,23 @@ function CashierSprite() {
 function Supermarket() {
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[9, 18]} />
-        <meshStandardMaterial color="#b7b4ab" />
-      </mesh>
+      <TiledFloor />
+      <KonbiniCeiling />
 
       <mesh position={[0, 2.5, -9]}>
         <boxGeometry args={[9, 5, 0.3]} />
         <meshStandardMaterial color="#e5e2d9" />
       </mesh>
+
+      {/* Retro Japanese promotional poster behind cashier */}
+      <group position={[-2.9, 2.65, -8.82]}>
+        <KonbiniPoster />
+      </group>
+
+      {/* Japanese cashier sign above the counter */}
+      <group position={[0, 4.15, -8.82]}>
+        <CheckoutSign />
+      </group>
 
       <mesh position={[-4.5, 2.5, 0]}>
         <boxGeometry args={[0.3, 5, 18]} />
@@ -202,13 +247,13 @@ function Supermarket() {
 
       {/* Japanese konbini: wall-side shelves */}
       <group rotation={[0, -Math.PI / 2, 0]}>
-        <Shelf position={[-3.5, 0, 3.3]} />
-        <Shelf position={[2.5, 0, 3.3]} />
+        <Shelf position={[-3.5, 0, 3.3]} products={['chips', 'sticks']} category='snacks' />
+        <Shelf position={[2.5, 0, 3.3]} products={['ramen']} category='ramen' />
       </group>
 
       <group rotation={[0, Math.PI / 2, 0]}>
-        <Shelf position={[3.5, 0, 3.3]} />
-        <Shelf position={[-2.5, 0, 3.3]} />
+        <Shelf position={[3.5, 0, 3.3]} products={['can', 'bottle']} category='drinks' />
+        <Shelf position={[-2.5, 0, 3.3]} products={['box']} category='breakfast' />
       </group>
 
       {/* 2D Japanese cashier */}
@@ -224,10 +269,20 @@ function Supermarket() {
           <boxGeometry args={[4.2, 0.12, 1.6]} />
           <meshStandardMaterial color="#d7b48c" roughness={0.6} />
         </mesh>
-        <mesh position={[1.1, 1.38, -0.3]} castShadow>
-          <boxGeometry args={[0.7, 0.4, 0.12]} />
-          <meshStandardMaterial color="#303d3c" />
-        </mesh>
+        {/* Detailed cashier POS terminal */}
+        <group position={[1.1, 1.22, -0.3]}>
+          <CashierPOS />
+        </group>
+
+        {/* Handheld barcode scanner beside POS */}
+        <group position={[0.35, 1.22, -0.15]}>
+          <BarcodeScanner />
+        </group>
+
+        {/* Red shopping basket on the left side of the counter */}
+        <group position={[-1.15, 1.22, -0.1]}>
+          <ShoppingBasket />
+        </group>
       </group>
     </group>
   )
@@ -242,6 +297,7 @@ export default function App() {
 
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [orderConfirmed, setOrderConfirmed] = useState(false)
+  const [completedOrder, setCompletedOrder] = useState(null)
 
   useEffect(() => {
     const handleInteraction = (event) => {
@@ -265,6 +321,14 @@ export default function App() {
 
   const confirmDemoOrder = () => {
     if (cart.length === 0) return
+
+    setCompletedOrder({
+      items: cart.map((item) => ({ ...item })),
+      total,
+      orderNumber: `DEMO-${Date.now().toString(36).toUpperCase()}`,
+      date: new Date().toLocaleString('en-PH'),
+    })
+
     clearCart()
     setCheckoutOpen(false)
     setOrderConfirmed(true)
@@ -425,50 +489,14 @@ export default function App() {
         />
       )}
 
-      {orderConfirmed && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Demo order confirmation"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 50,
-            background: 'rgba(12,15,18,0.75)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
+      {orderConfirmed && completedOrder && (
+        <OrderReceipt
+          order={completedOrder}
+          onClose={() => {
+            setOrderConfirmed(false)
+            setCompletedOrder(null)
           }}
-        >
-          <div style={{
-            width: '100%',
-            maxWidth: '420px',
-            padding: '32px',
-            background: '#f5f2e9',
-            color: '#242424',
-            textAlign: 'center',
-          }}>
-            <h2>Order Confirmed!</h2>
-            <p>Thank you for shopping at our Japanese Konbini.</p>
-            <p style={{ fontSize: '13px', color: '#777' }}>
-              Demo order only. No real payment was processed.
-            </p>
-            <button
-              onClick={() => setOrderConfirmed(false)}
-              style={{
-                marginTop: '20px',
-                padding: '14px 24px',
-                border: 0,
-                background: '#294d46',
-                color: '#fff',
-                cursor: 'pointer',
-              }}
-            >
-              BACK TO STORE
-            </button>
-          </div>
-        </div>
+        />
       )}
       <ProductInspection
         product={inspectedProduct}
@@ -478,6 +506,22 @@ export default function App() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
