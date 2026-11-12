@@ -8,7 +8,21 @@ export default function MobileLookControls() {
 
   useEffect(() => {
     const element = gl.domElement
+
+    const previousStyles = {
+      touchAction: element.style.touchAction,
+      userSelect: element.style.userSelect,
+      webkitUserSelect: element.style.webkitUserSelect,
+      webkitTouchCallout: element.style.webkitTouchCallout,
+    }
+
     element.style.touchAction = 'none'
+    element.style.userSelect = 'none'
+    element.style.webkitUserSelect = 'none'
+    element.style.webkitTouchCallout = 'none'
+
+    const preventContextMenu = (event) => event.preventDefault()
+    element.addEventListener('contextmenu', preventContextMenu)
 
     const onPointerDown = (event) => {
       if (event.pointerType !== 'touch') return
@@ -59,9 +73,14 @@ export default function MobileLookControls() {
       element.removeEventListener('pointermove', onPointerMove)
       element.removeEventListener('pointerup', onPointerEnd)
       element.removeEventListener('pointercancel', onPointerEnd)
-      element.style.touchAction = ''
+      element.removeEventListener('contextmenu', preventContextMenu)
+      element.style.touchAction = previousStyles.touchAction
+      element.style.userSelect = previousStyles.userSelect
+      element.style.webkitUserSelect = previousStyles.webkitUserSelect
+      element.style.webkitTouchCallout = previousStyles.webkitTouchCallout
     }
   }, [camera, gl])
 
   return null
 }
+

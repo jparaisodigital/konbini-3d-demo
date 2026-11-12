@@ -94,14 +94,14 @@ export default function FirstPersonController({ disabled = false }) {
 
       const collides = (x, z) =>
         shelves.some((shelf) =>
-          Math.abs(x - shelf.x) < 1.2 &&
+          Math.abs(x - shelf.x) < 1.35 &&
           Math.abs(z - shelf.z) < 2.85
         ) ||
         (Math.abs(x) < 2.35 && Math.abs(z + 7.5) < 1.15) ||
         // Entrance machine collisions
         (Math.abs(x + 3.65) < 0.65 && Math.abs(z - 6.95) < 0.80) ||
         (Math.abs(x - 3.65) < 0.65 && Math.abs(z - 7.4) < 1.10) ||
-        z < -5.2
+        z < -5.0
 
       // Test axes separately so the player can slide along shelves
       if (!collides(next.x, camera.position.z)) {
@@ -133,6 +133,7 @@ export default function FirstPersonController({ disabled = false }) {
     />
   )
 }
+
 
 
 

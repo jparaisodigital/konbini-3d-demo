@@ -33,6 +33,7 @@ export default function MobileJoystick({ onMove }) {
   return (
     <div
       aria-label="Movement joystick"
+      onContextMenu={(event) => event.preventDefault()}
       onPointerDown={(event) => {
         pointerId.current = event.pointerId
         event.currentTarget.setPointerCapture(event.pointerId)
@@ -61,6 +62,8 @@ export default function MobileJoystick({ onMove }) {
         border: '2px solid rgba(255,255,255,0.5)',
         touchAction: 'none',
         userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTouchCallout: 'none',
         zIndex: 15,
       }}
     >
@@ -81,3 +84,4 @@ export default function MobileJoystick({ onMove }) {
     </div>
   )
 }
+

@@ -22,6 +22,7 @@ import TiledFloor from './TiledFloor.jsx'
 import OrderReceipt from './OrderReceipt.jsx'
 import CheckoutPanel from './CheckoutPanel.jsx'
 import CashierDetector from './CashierDetector.jsx'
+import CashierThoughtBubble from './CashierThoughtBubble.jsx'
 import CartPanel from './CartPanel.jsx'
 import useShoppingCart from './useShoppingCart.js'
 import { useMemo } from 'react'
@@ -162,7 +163,7 @@ function ExteriorBackdrop() {
   )
 }
 function CashierSprite() {
-  const source = useTexture('/konbini-cashier-atlas.webp')
+  const source = useTexture('/konbini-cashier-welcome.png')
 
   const texture = useMemo(() => {
     const copy = source.clone()
@@ -177,7 +178,7 @@ function CashierSprite() {
   }, [texture])
 
   useFrame(({ clock }) => {
-    const frame = Math.floor(clock.getElapsedTime() * 2.5) % 4
+    const frame = Math.floor(clock.getElapsedTime() * 0.9) % 4
     const column = frame % 2
     const row = Math.floor(frame / 2)
 
@@ -188,7 +189,7 @@ function CashierSprite() {
   })
 
   return (
-    <sprite position={[0, 2.15, -7.95]} scale={[1.9, 2.5, 1]}>
+    <sprite position={[0, 1.8, -7.95]} scale={[1.55, 2.05, 1]}>
       <spriteMaterial
         map={texture}
         transparent
@@ -504,6 +505,9 @@ export default function App() {
         />
         <Suspense fallback={null}>
           <Supermarket />
+          {cashierNearby && !movementLocked && (
+            <CashierThoughtBubble />
+          )}
         {isTouchDevice ? (
           <>
             <MobileFirstPersonController movementRef={mobileMovement} disabled={movementLocked} />
@@ -786,6 +790,14 @@ export default function App() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
 
 
 

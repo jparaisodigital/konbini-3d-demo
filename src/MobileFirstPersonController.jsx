@@ -53,14 +53,14 @@ export default function MobileFirstPersonController({ movementRef, disabled = fa
 
     const collides = (px, pz) =>
       shelves.some((shelf) =>
-        Math.abs(px - shelf.x) < 1.2 &&
+        Math.abs(px - shelf.x) < 1.35 &&
         Math.abs(pz - shelf.z) < 2.85
       ) ||
       (Math.abs(px) < 2.35 && Math.abs(pz + 7.5) < 1.15) ||
       // Entrance machine collisions
       (Math.abs(px + 3.65) < 0.65 && Math.abs(pz - 6.95) < 0.80) ||
       (Math.abs(px - 3.65) < 0.65 && Math.abs(pz - 7.4) < 1.10) ||
-      pz < -5.2
+      pz < -5.0
 
     if (!collides(next.x, camera.position.z)) {
       camera.position.x = next.x
@@ -77,6 +77,7 @@ export default function MobileFirstPersonController({ movementRef, disabled = fa
 
   return null
 }
+
 
 
 

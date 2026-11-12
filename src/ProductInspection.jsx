@@ -1,4 +1,5 @@
 ﻿import ProductPreview from './ProductPreview.jsx'
+import { flyToCart } from './flyToCart.js'
 const productDetails = {
   box: { name: 'Konbini Crunch Cereal', price: 149, category: 'Breakfast & Pantry' },
   ramen: { name: 'Tokyo Cup Ramen', price: 79, category: 'Instant Noodles' },
@@ -93,7 +94,13 @@ export default function ProductInspection({ product, onClose, onAddToCart }) {
         </p>
 
         <button
-          onClick={() => {
+          onClick={(event) => {
+            try {
+              flyToCart(product, event.currentTarget)
+            } catch (error) {
+              console.warn('Fly-to-cart animation unavailable:', error)
+            }
+
             onAddToCart(product)
             onClose()
           }}
@@ -129,6 +136,7 @@ export default function ProductInspection({ product, onClose, onAddToCart }) {
     </div>
   )
 }
+
 
 
 
