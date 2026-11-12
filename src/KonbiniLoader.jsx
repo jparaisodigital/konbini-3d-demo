@@ -27,7 +27,10 @@ export default function KonbiniLoader({ ready = false }) {
           bottom: 0;
           width: 50.5%;
           box-sizing: border-box;
-          transition: transform 1.15s cubic-bezier(0.76, 0, 0.24, 1);
+          transition: transform 1.05s cubic-bezier(0.45, 0, 0.55, 1);
+          will-change: transform;
+          backface-visibility: hidden;
+          transform: translate3d(0, 0, 0);
           overflow: hidden;
         }
 
@@ -46,11 +49,11 @@ export default function KonbiniLoader({ ready = false }) {
         }
 
         .konbini-loader.ready .konbini-door.left {
-          transform: translateX(-101%);
+          transform: translate3d(-101%, 0, 0);
         }
 
         .konbini-loader.ready .konbini-door.right {
-          transform: translateX(101%);
+          transform: translate3d(101%, 0, 0);
         }
 
         .konbini-door-stripe {
@@ -168,4 +171,7 @@ export default function KonbiniLoader({ ready = false }) {
     </div>
   )
 }
+
+
+
 

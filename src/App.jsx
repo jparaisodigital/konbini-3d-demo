@@ -1,6 +1,7 @@
 ﻿import GachaStation from './GachaStation.jsx'
 import KonbiniATM from './KonbiniATM.jsx'
 import KonbiniLoader from './KonbiniLoader.jsx'
+import { createKonbiniMusic } from './konbiniMusic.js'
 import CashierTileWall from './CashierTileWall.jsx'
 import HangingBanner from './HangingBanner.jsx'
 import MobileLookControls from './MobileLookControls.jsx'
@@ -378,6 +379,54 @@ function SceneReadySignal({ onReady }) {
 
 export default function App() {
   const [sceneReady, setSceneReady] = useState(false)
+  const musicRef = useRef(null)
+  const [musicOn, setMusicOn] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      musicRef.current?.dispose()
+      musicRef.current = null
+    }
+  }, [])
+  // Start music on the visitor's first interaction.
+  useEffect(() => {
+    if (!sceneReady) return
+
+    let activated = false
+
+    const activateMusic = (event) => {
+      if (activated) return
+      activated = true
+
+      window.removeEventListener('pointerdown', activateMusic)
+      window.removeEventListener('keydown', activateMusic)
+
+      // Let the music button handle its own click.
+      if (event.target?.closest?.('[data-konbini-music-toggle]')) {
+        return
+      }
+
+      if (!musicRef.current) {
+        musicRef.current = createKonbiniMusic()
+      }
+
+      musicRef.current.setMuted(false)
+      musicRef.current.start()
+        .then(() => setMusicOn(true))
+        .catch((error) => {
+          console.warn('KONBINI music could not start:', error)
+        })
+    }
+
+    window.addEventListener('pointerdown', activateMusic)
+    window.addEventListener('keydown', activateMusic)
+
+    return () => {
+      window.removeEventListener('pointerdown', activateMusic)
+      window.removeEventListener('keydown', activateMusic)
+    }
+  }, [sceneReady])
+
   const isTouchDevice = useIsTouchDevice()
   const mobileMovement = useRef({ x: 0, y: 0 })
   const { cart, addItem, removeItem, clearCart, total, itemCount } = useShoppingCart()
@@ -544,6 +593,57 @@ export default function App() {
         </svg>
         <span>{itemCount}</span>
       </button>
+      {/* KONBINI background music */}
+      <button
+        data-konbini-music-toggle
+        type="button"
+        aria-label={musicOn ? 'Mute background music' : 'Play background music'}
+        aria-pressed={musicOn}
+        onClick={() => {
+          document.exitPointerLock?.()
+
+          if (musicOn) {
+            musicRef.current?.setMuted(true)
+            setMusicOn(false)
+            return
+          }
+
+          if (!musicRef.current) {
+            musicRef.current = createKonbiniMusic()
+          }
+
+          musicRef.current.setMuted(false)
+
+          musicRef.current.start()
+            .then(() => setMusicOn(true))
+            .catch((error) => {
+              console.warn('KONBINI music could not start:', error)
+              setMusicOn(false)
+            })
+        }}
+        style={{
+          position: 'fixed',
+          top: '82px',
+          right: '24px',
+          minWidth: '120px',
+          minHeight: '42px',
+          padding: '10px 14px',
+          background: musicOn ? '#d9503d' : '#294d46',
+          color: '#ffffff',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          letterSpacing: '1px',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          border: 'none',
+          zIndex: 20,
+          touchAction: 'manipulation',
+          boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
+        }}
+      >
+        {musicOn ? '♫ MUSIC ON' : '♪ MUSIC OFF'}
+      </button>
+
       <div
         aria-label="Aim crosshair"
         style={{
@@ -659,6 +759,9 @@ export default function App() {
     </div>
   )
 }
+
+
+
 
 
 

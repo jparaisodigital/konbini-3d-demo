@@ -55,6 +55,9 @@ export default function MobileFirstPersonController({ movementRef }) {
         Math.abs(pz - shelf.z) < 2.85
       ) ||
       (Math.abs(px) < 2.35 && Math.abs(pz + 7.5) < 1.15) ||
+      // Entrance machine collisions
+      (Math.abs(px + 3.65) < 0.65 && Math.abs(pz - 6.95) < 0.80) ||
+      (Math.abs(px - 3.65) < 0.65 && Math.abs(pz - 7.4) < 1.10) ||
       pz < -5.2
 
     if (!collides(next.x, camera.position.z)) {
@@ -72,4 +75,5 @@ export default function MobileFirstPersonController({ movementRef }) {
 
   return null
 }
+
 

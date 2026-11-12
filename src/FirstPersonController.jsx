@@ -72,6 +72,9 @@ export default function FirstPersonController() {
           Math.abs(z - shelf.z) < 2.85
         ) ||
         (Math.abs(x) < 2.35 && Math.abs(z + 7.5) < 1.15) ||
+        // Entrance machine collisions
+        (Math.abs(x + 3.65) < 0.65 && Math.abs(z - 6.95) < 0.80) ||
+        (Math.abs(x - 3.65) < 0.65 && Math.abs(z - 7.4) < 1.10) ||
         z < -5.2
 
       // Test axes separately so the player can slide along shelves
@@ -103,6 +106,7 @@ export default function FirstPersonController() {
     />
   )
 }
+
 
 
 
