@@ -439,6 +439,13 @@ export default function App() {
   const [orderConfirmed, setOrderConfirmed] = useState(false)
   const [completedOrder, setCompletedOrder] = useState(null)
 
+  // Prevent player movement while any shopping panel is open.
+  const movementLocked = Boolean(
+    inspectedProduct || cartOpen || checkoutOpen || orderConfirmed
+  )
+
+
+
   useEffect(() => {
     const handleInteraction = (event) => {
       if (event.type === 'keydown' && (event.code !== 'KeyE' || event.repeat)) return
@@ -499,11 +506,11 @@ export default function App() {
           <Supermarket />
         {isTouchDevice ? (
           <>
-            <MobileFirstPersonController movementRef={mobileMovement} />
+            <MobileFirstPersonController movementRef={mobileMovement} disabled={movementLocked} />
             <MobileLookControls />
           </>
         ) : (
-          <FirstPersonController />
+          <FirstPersonController disabled={movementLocked} />
         )}
         <ProductDetector onTargetChange={setTargetProduct} />
           <CashierDetector onNearbyChange={setCashierNearby} />
@@ -623,16 +630,16 @@ export default function App() {
         }}
         style={{
           position: 'fixed',
-          top: '82px',
-          right: '24px',
-          minWidth: '120px',
-          minHeight: '42px',
-          padding: '10px 14px',
-          background: musicOn ? '#d9503d' : '#294d46',
+          top: 'max(16px, env(safe-area-inset-top))',
+          left: 'max(16px, env(safe-area-inset-left))',
+          width: '44px',
+          height: '44px',
+          padding: '0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#294d46',
           color: '#ffffff',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          letterSpacing: '1px',
           borderRadius: '8px',
           cursor: 'pointer',
           border: 'none',
@@ -641,7 +648,27 @@ export default function App() {
           boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
         }}
       >
-        {musicOn ? '♫ MUSIC ON' : '♪ MUSIC OFF'}
+        <svg
+          width="21"
+          height="21"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+          {musicOn ? (
+            <>
+              <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+              <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+            </>
+          ) : (
+            <path d="M16 9l5 6m0-6-5 6" />
+          )}
+        </svg>
       </button>
 
       <div
@@ -759,6 +786,9 @@ export default function App() {
     </div>
   )
 }
+
+
+
 
 
 

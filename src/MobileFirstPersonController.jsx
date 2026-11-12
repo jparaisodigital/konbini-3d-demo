@@ -2,7 +2,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-export default function MobileFirstPersonController({ movementRef }) {
+export default function MobileFirstPersonController({ movementRef, disabled = false }) {
   const { camera } = useThree()
 
   useEffect(() => {
@@ -15,6 +15,8 @@ export default function MobileFirstPersonController({ movementRef }) {
   const direction = useRef(new THREE.Vector3())
 
   useFrame((_, delta) => {
+    if (disabled) return
+
     const joystick = movementRef.current
     if (!joystick) return
 
@@ -75,5 +77,6 @@ export default function MobileFirstPersonController({ movementRef }) {
 
   return null
 }
+
 
 

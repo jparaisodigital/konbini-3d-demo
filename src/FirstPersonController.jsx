@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { PointerLockControls } from '@react-three/drei'
 import * as THREE from 'three'
 
-export default function FirstPersonController() {
+export default function FirstPersonController({ disabled = false }) {
   const { camera } = useThree()
   const keys = useRef({})
   const locked = useRef(false)
@@ -38,7 +38,33 @@ export default function FirstPersonController() {
     }
   }, [camera])
 
+  // Always release the mouse when a shopping panel opens.
+  useEffect(() => {
+    if (!disabled) return
+
+    locked.current = false
+    keys.current = {}
+
+    const releaseCursor = () => {
+      if (document.pointerLockElement) {
+        document.exitPointerLock?.()
+      }
+    }
+
+    document.addEventListener('pointerlockchange', releaseCursor)
+    releaseCursor()
+
+    return () => {
+      document.removeEventListener('pointerlockchange', releaseCursor)
+    }
+  }, [disabled])
+
   useFrame((_, delta) => {
+    if (disabled) {
+      keys.current = {}
+      return
+    }
+
     if (!locked.current) return
 
     const movement = direction.current.set(0, 0, 0)
@@ -96,6 +122,7 @@ export default function FirstPersonController() {
 
   return (
     <PointerLockControls
+      enabled={!disabled}
       onLock={() => {
         locked.current = true
       }}
@@ -106,6 +133,9 @@ export default function FirstPersonController() {
     />
   )
 }
+
+
+
 
 
 
