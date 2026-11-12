@@ -1,4 +1,6 @@
-﻿import KonbiniLoader from './KonbiniLoader.jsx'
+﻿import GachaStation from './GachaStation.jsx'
+import KonbiniATM from './KonbiniATM.jsx'
+import KonbiniLoader from './KonbiniLoader.jsx'
 import CashierTileWall from './CashierTileWall.jsx'
 import HangingBanner from './HangingBanner.jsx'
 import MobileLookControls from './MobileLookControls.jsx'
@@ -201,6 +203,16 @@ function Supermarket() {
     <group>
       <TiledFloor />
       <WelcomeMat />
+
+      {/* Self-service ATM beside the left entrance */}
+      <group position={[-3.65, 0, 6.95]} rotation={[0, Math.PI / 2, 0]}>
+        <KonbiniATM />
+      </group>
+
+      {/* Japanese Gachapon corner beside the right entrance */}
+      <group position={[3.65, 0, 7.4]} rotation={[0, -Math.PI / 2, 0]}>
+        <GachaStation />
+      </group>
       <KonbiniCeiling />
 
       {/* Japanese hanging promotional banners */}
@@ -647,6 +659,9 @@ export default function App() {
     </div>
   )
 }
+
+
+
 
 
 
