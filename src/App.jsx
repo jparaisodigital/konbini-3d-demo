@@ -1,4 +1,5 @@
-﻿import CashierTileWall from './CashierTileWall.jsx'
+﻿import KonbiniLoader from './KonbiniLoader.jsx'
+import CashierTileWall from './CashierTileWall.jsx'
 import HangingBanner from './HangingBanner.jsx'
 import MobileLookControls from './MobileLookControls.jsx'
 import useIsTouchDevice from './useIsTouchDevice.js'
@@ -25,7 +26,7 @@ import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { useEffect } from 'react'
 import ProductInspection from './ProductInspection.jsx'
-import { useState, useRef } from 'react'
+import { Suspense, useState, useRef } from 'react'
 import ProductDetector from './ProductDetector.jsx'
 import GroceryProduct from './GroceryProduct.jsx'
 import { Canvas } from '@react-three/fiber'
@@ -350,7 +351,21 @@ function Supermarket() {
   )
 }
 
+function SceneReadySignal({ onReady }) {
+  const reported = useRef(false)
+
+  useFrame(() => {
+    if (!reported.current) {
+      reported.current = true
+      onReady()
+    }
+  })
+
+  return null
+}
+
 export default function App() {
+  const [sceneReady, setSceneReady] = useState(false)
   const isTouchDevice = useIsTouchDevice()
   const mobileMovement = useRef({ x: 0, y: 0 })
   const { cart, addItem, removeItem, clearCart, total, itemCount } = useShoppingCart()
@@ -419,7 +434,8 @@ export default function App() {
           shadow-camera-top={12}
           shadow-camera-bottom={-12}
         />
-        <Supermarket />
+        <Suspense fallback={null}>
+          <Supermarket />
         {isTouchDevice ? (
           <>
             <MobileFirstPersonController movementRef={mobileMovement} />
@@ -429,8 +445,12 @@ export default function App() {
           <FirstPersonController />
         )}
         <ProductDetector onTargetChange={setTargetProduct} />
-        <CashierDetector onNearbyChange={setCashierNearby} />
+          <CashierDetector onNearbyChange={setCashierNearby} />
+          <SceneReadySignal onReady={() => setSceneReady(true)} />
+        </Suspense>
       </Canvas>
+
+      <KonbiniLoader ready={sceneReady} />
 
       {isTouchDevice && (
         <MobileJoystick
@@ -627,6 +647,7 @@ export default function App() {
     </div>
   )
 }
+
 
 
 
