@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import * as THREE from 'three'
 
 function createSticksTexture() {
@@ -64,12 +64,16 @@ function createSticksTexture() {
   return texture
 }
 
-export default function SnackSticks() {
-  const texture = useMemo(() => createSticksTexture(), [])
+let sharedSticksTexture = null
 
-  useEffect(() => {
-    return () => texture.dispose()
-  }, [texture])
+export default function SnackSticks() {
+  const texture = useMemo(() => {
+    if (!sharedSticksTexture) {
+      sharedSticksTexture = createSticksTexture()
+    }
+
+    return sharedSticksTexture
+  }, [])
 
   return (
     <group>
@@ -92,3 +96,4 @@ export default function SnackSticks() {
     </group>
   )
 }
+

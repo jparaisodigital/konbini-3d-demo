@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import * as THREE from 'three'
 
 function createTeaTexture() {
@@ -39,12 +39,16 @@ function createTeaTexture() {
   return texture
 }
 
-export default function TeaBottle() {
-  const labelTexture = useMemo(() => createTeaTexture(), [])
+let sharedTeaTexture = null
 
-  useEffect(() => {
-    return () => labelTexture.dispose()
-  }, [labelTexture])
+export default function TeaBottle() {
+  const labelTexture = useMemo(() => {
+    if (!sharedTeaTexture) {
+      sharedTeaTexture = createTeaTexture()
+    }
+
+    return sharedTeaTexture
+  }, [])
 
   return (
     <group>
@@ -96,3 +100,4 @@ export default function TeaBottle() {
     </group>
   )
 }
+

@@ -8,7 +8,7 @@
       </mesh>
 
       {/* Screen support */}
-      <mesh position={[0, 0.22, -0.08]} castShadow>
+      <mesh position={[0, 0.22, -0.20]} castShadow>
         <boxGeometry args={[0.08, 0.34, 0.08]} />
         <meshStandardMaterial color="#34413d" />
       </mesh>
@@ -42,3 +42,4 @@
     </group>
   )
 }
+

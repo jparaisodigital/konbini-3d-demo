@@ -3,7 +3,7 @@ import TeaBottle from './TeaBottle.jsx'
 import CoffeeCan from './CoffeeCan.jsx'
 import ChipsBag from './ChipsBag.jsx'
 import RamenCup from './RamenCup.jsx'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import * as THREE from 'three'
 
 function createCerealTexture(color) {
@@ -81,6 +81,8 @@ function createCerealTexture(color) {
   return texture
 }
 
+const sharedCerealTextures = new Map()
+
 export default function GroceryProduct({
   type = 'box',
   color = '#e8a23c',
@@ -93,14 +95,15 @@ export default function GroceryProduct({
     return [0.36, 0.55, 0.2]
   }, [type])
 
-  const cerealTexture = useMemo(
-    () => type === 'box' ? createCerealTexture(color) : null,
-    [type, color]
-  )
+  const cerealTexture = useMemo(() => {
+    if (type !== 'box') return null
 
-  useEffect(() => {
-    return () => cerealTexture?.dispose()
-  }, [cerealTexture])
+    if (!sharedCerealTextures.has(color)) {
+      sharedCerealTextures.set(color, createCerealTexture(color))
+    }
+
+    return sharedCerealTextures.get(color)
+  }, [type, color])
 
   return (
     <group
@@ -154,6 +157,7 @@ export default function GroceryProduct({
     </group>
   )
 }
+
 
 
 

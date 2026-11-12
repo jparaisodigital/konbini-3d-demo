@@ -6,7 +6,7 @@
       {/* Main ceiling */}
       <mesh position={[0, 5.05, 0]} receiveShadow>
         <boxGeometry args={[9, 0.12, 18]} />
-        <meshStandardMaterial color="#ebe8df" roughness={0.95} />
+        <meshStandardMaterial color="#E8BC65" roughness={0.95} />
       </mesh>
 
       {/* Recessed LED light fixtures along the center aisle */}
@@ -33,3 +33,5 @@
     </group>
   )
 }
+
+

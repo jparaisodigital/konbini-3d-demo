@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import * as THREE from 'three'
 
 function createRamenTexture() {
@@ -46,12 +46,16 @@ function createRamenTexture() {
   return texture
 }
 
-export default function RamenCup() {
-  const texture = useMemo(() => createRamenTexture(), [])
+let sharedRamenTexture = null
 
-  useEffect(() => {
-    return () => texture.dispose()
-  }, [texture])
+export default function RamenCup() {
+  const texture = useMemo(() => {
+    if (!sharedRamenTexture) {
+      sharedRamenTexture = createRamenTexture()
+    }
+
+    return sharedRamenTexture
+  }, [])
 
   return (
     <group>
@@ -75,3 +79,4 @@ export default function RamenCup() {
     </group>
   )
 }
+

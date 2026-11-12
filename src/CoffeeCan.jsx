@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import * as THREE from 'three'
 
 function createCoffeeTexture() {
@@ -38,12 +38,16 @@ function createCoffeeTexture() {
   return texture
 }
 
-export default function CoffeeCan() {
-  const texture = useMemo(() => createCoffeeTexture(), [])
+let sharedCoffeeTexture = null
 
-  useEffect(() => {
-    return () => texture.dispose()
-  }, [texture])
+export default function CoffeeCan() {
+  const texture = useMemo(() => {
+    if (!sharedCoffeeTexture) {
+      sharedCoffeeTexture = createCoffeeTexture()
+    }
+
+    return sharedCoffeeTexture
+  }, [])
 
   return (
     <group>
@@ -67,3 +71,4 @@ export default function CoffeeCan() {
     </group>
   )
 }
+

@@ -71,7 +71,8 @@ export default function FirstPersonController() {
           Math.abs(x - shelf.x) < 1.2 &&
           Math.abs(z - shelf.z) < 2.85
         ) ||
-        (Math.abs(x) < 2.35 && Math.abs(z + 7.5) < 1.15)
+        (Math.abs(x) < 2.35 && Math.abs(z + 7.5) < 1.15) ||
+        z < -5.2
 
       // Test axes separately so the player can slide along shelves
       if (!collides(next.x, camera.position.z)) {
@@ -102,6 +103,8 @@ export default function FirstPersonController() {
     />
   )
 }
+
+
 
 
 

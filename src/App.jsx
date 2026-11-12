@@ -1,4 +1,12 @@
-﻿import CheckoutSign from './CheckoutSign.jsx'
+﻿import CashierTileWall from './CashierTileWall.jsx'
+import HangingBanner from './HangingBanner.jsx'
+import MobileLookControls from './MobileLookControls.jsx'
+import useIsTouchDevice from './useIsTouchDevice.js'
+import MobileJoystick from './MobileJoystick.jsx'
+import MobileFirstPersonController from './MobileFirstPersonController.jsx'
+import WelcomeMat from './WelcomeMat.jsx'
+import WallGraphic from './WallGraphic.jsx'
+import CheckoutSign from './CheckoutSign.jsx'
 import ShoppingBasket from './ShoppingBasket.jsx'
 import BarcodeScanner from './BarcodeScanner.jsx'
 import CashierPOS from './CashierPOS.jsx'
@@ -17,7 +25,7 @@ import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { useEffect } from 'react'
 import ProductInspection from './ProductInspection.jsx'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import ProductDetector from './ProductDetector.jsx'
 import GroceryProduct from './GroceryProduct.jsx'
 import { Canvas } from '@react-three/fiber'
@@ -58,14 +66,42 @@ function Shelf({ position, products, category }) {
           const types = products
           const colors = ['#e8a23c', '#e85d4a', '#69a9a0', '#a67bc2', '#e0cf69']
 
+          const type = types[(i + row) % types.length]
+
+          const productHeights = {
+            box: 0.298,
+            ramen: 0.235,
+            chips: 0.264,
+            can: 0.247,
+            bottle: 0.221,
+            sticks: 0.311,
+          }
+
+          const x = -2.15 + i * 0.47
+          const color = colors[(i + row) % colors.length]
+
           return (
-            <GroceryProduct
-              key={`${row}-${i}`}
-              type={types[(i + row) % types.length]}
-              color={colors[(i + row) % colors.length]}
-              position={[-2.15 + i * 0.47, level + 0.33, -0.45]}
-              scale={0.9}
-            />
+            <group key={`stock-${row}-${i}`}>
+              {/* Existing front products */}
+              <GroceryProduct
+                type={type}
+                color={color}
+                position={[x, level + productHeights[type], -0.45]}
+                scale={0.9}
+              />
+
+              {/* Additional display stock on the opposite side */}
+              <group
+                position={[x, level + productHeights[type], 0.45]}
+                rotation={[0, Math.PI, 0]}
+              >
+                <GroceryProduct
+                  type={type}
+                  color={color}
+                  scale={0.9}
+                />
+              </group>
+            </group>
           )
         })
       )}
@@ -163,12 +199,33 @@ function Supermarket() {
   return (
     <group>
       <TiledFloor />
+      <WelcomeMat />
       <KonbiniCeiling />
+
+      {/* Japanese hanging promotional banners */}
+      <group position={[-3.45, 3.7, 1.5]} rotation={[0, Math.PI / 2, 0]}>
+        <HangingBanner
+          jpText="お買い得"
+          enText="SPECIAL SALE"
+          accent="#d9503d"
+        />
+      </group>
+
+      <group position={[3.45, 3.7, 1.5]} rotation={[0, -Math.PI / 2, 0]}>
+        <HangingBanner
+          jpText="新商品"
+          enText="NEW ARRIVAL"
+          accent="#315c48"
+        />
+      </group>
 
       <mesh position={[0, 2.5, -9]}>
         <boxGeometry args={[9, 5, 0.3]} />
-        <meshStandardMaterial color="#e5e2d9" />
+        <meshStandardMaterial color="#A8CDBA" roughness={0.9} />
       </mesh>
+
+      {/* Subtle ceramic tiles behind the cashier */}
+      <CashierTileWall color="#A8CDBA" />
 
       {/* Retro Japanese promotional poster behind cashier */}
       <group position={[-2.9, 2.65, -8.82]}>
@@ -180,14 +237,19 @@ function Supermarket() {
         <CheckoutSign />
       </group>
 
+      {/* Lightweight Japanese wall graphic */}
+      <group position={[2.85, 2.85, -8.82]} scale={0.65}>
+        <WallGraphic />
+      </group>
+
       <mesh position={[-4.5, 2.5, 0]}>
         <boxGeometry args={[0.3, 5, 18]} />
-        <meshStandardMaterial color="#e5e2d9" />
+        <meshStandardMaterial color="#F3B49F" roughness={0.9} />
       </mesh>
 
       <mesh position={[4.5, 2.5, 0]}>
         <boxGeometry args={[0.3, 5, 18]} />
-        <meshStandardMaterial color="#e5e2d9" />
+        <meshStandardMaterial color="#E9A9B5" roughness={0.9} />
       </mesh>
 
       {/* Front storefront entrance */}
@@ -260,7 +322,7 @@ function Supermarket() {
       <CashierSprite />
 
       {/* Checkout counter at the back center */}
-      <group position={[0, 0, -7.5]}>
+      <group position={[0, 0, -7.1]}>
         <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
           <boxGeometry args={[4, 1.1, 1.4]} />
           <meshStandardMaterial color="#477469" roughness={0.8} />
@@ -289,6 +351,8 @@ function Supermarket() {
 }
 
 export default function App() {
+  const isTouchDevice = useIsTouchDevice()
+  const mobileMovement = useRef({ x: 0, y: 0 })
   const { cart, addItem, removeItem, clearCart, total, itemCount } = useShoppingCart()
   const [cashierNearby, setCashierNearby] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -301,7 +365,7 @@ export default function App() {
 
   useEffect(() => {
     const handleInteraction = (event) => {
-      if (event.code !== 'KeyE' || event.repeat) return
+      if (event.type === 'keydown' && (event.code !== 'KeyE' || event.repeat)) return
       if (inspectedProduct || cartOpen || checkoutOpen || orderConfirmed) return
 
       if (cashierNearby) {
@@ -316,7 +380,12 @@ export default function App() {
     }
 
     window.addEventListener('keydown', handleInteraction)
-    return () => window.removeEventListener('keydown', handleInteraction)
+    window.addEventListener('konbini:interact', handleInteraction)
+
+    return () => {
+      window.removeEventListener('keydown', handleInteraction)
+      window.removeEventListener('konbini:interact', handleInteraction)
+    }
   }, [targetProduct, inspectedProduct, cashierNearby, cartOpen, checkoutOpen, orderConfirmed])
 
   const confirmDemoOrder = () => {
@@ -335,7 +404,7 @@ export default function App() {
   }
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <Canvas shadows camera={{ position: [12, 12, 18], fov: 55 }}>
+      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [12, 12, 18], fov: 55 }}>
         <color attach="background" args={['#f0ebe2']} />
         <ambientLight color="#fff0dc" intensity={1.2} />
         <hemisphereLight args={['#fff7e8', '#a7a099', 1.0]} />
@@ -344,17 +413,65 @@ export default function App() {
           color="#fff1dc"
           intensity={2}
           castShadow
-          shadow-mapSize={[2048, 2048]}
+          shadow-mapSize={[1024, 1024]}
           shadow-camera-left={-12}
           shadow-camera-right={12}
           shadow-camera-top={12}
           shadow-camera-bottom={-12}
         />
         <Supermarket />
-        <FirstPersonController />
+        {isTouchDevice ? (
+          <>
+            <MobileFirstPersonController movementRef={mobileMovement} />
+            <MobileLookControls />
+          </>
+        ) : (
+          <FirstPersonController />
+        )}
         <ProductDetector onTargetChange={setTargetProduct} />
         <CashierDetector onNearbyChange={setCashierNearby} />
       </Canvas>
+
+      {isTouchDevice && (
+        <MobileJoystick
+          onMove={(movement) => {
+            mobileMovement.current = movement
+          }}
+        />
+      )}
+
+      {isTouchDevice &&
+        (targetProduct || cashierNearby) &&
+        !inspectedProduct &&
+        !cartOpen &&
+        !checkoutOpen &&
+        !orderConfirmed && (
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new Event('konbini:interact'))
+            }}
+            style={{
+              position: 'fixed',
+              right: '24px',
+              bottom: '45px',
+              minWidth: '110px',
+              minHeight: '58px',
+              padding: '12px 18px',
+              borderRadius: '14px',
+              border: '2px solid #315c48',
+              background: '#f5edda',
+              color: '#234536',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              touchAction: 'manipulation',
+              zIndex: 20,
+            }}
+          >
+            INTERACT
+          </button>
+        )}
       <button
         type='button'
         aria-label='Open shopping cart'
@@ -506,6 +623,21 @@ export default function App() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

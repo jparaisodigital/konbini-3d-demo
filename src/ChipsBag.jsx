@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import * as THREE from 'three'
 
 function createChipsTexture() {
@@ -57,10 +57,17 @@ function createChipsTexture() {
   return texture
 }
 
+let sharedChipsTexture = null
+let sharedChipsGeometry = null
+
 export default function ChipsBag() {
-  const texture = useMemo(() => createChipsTexture(), [])
+  const texture = useMemo(() => {
+    if (!sharedChipsTexture) sharedChipsTexture = createChipsTexture()
+    return sharedChipsTexture
+  }, [])
 
   const geometry = useMemo(() => {
+    if (sharedChipsGeometry) return sharedChipsGeometry
     const shape = new THREE.BoxGeometry(0.32, 0.47, 0.12, 4, 6, 2)
     const pos = shape.attributes.position
 
@@ -78,15 +85,9 @@ export default function ChipsBag() {
 
     pos.needsUpdate = true
     shape.computeVertexNormals()
-    return shape
+    sharedChipsGeometry = shape
+    return sharedChipsGeometry
   }, [])
-
-  useEffect(() => {
-    return () => {
-      texture.dispose()
-      geometry.dispose()
-    }
-  }, [texture, geometry])
 
   return (
     <group>
@@ -109,3 +110,4 @@ export default function ChipsBag() {
     </group>
   )
 }
+
