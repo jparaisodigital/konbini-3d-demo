@@ -565,6 +565,8 @@ export default function App() {
             fontSize: '13px',
             borderRadius: '6px',
             pointerEvents: 'none',
+          
+            display: isTouchDevice ? 'none' : undefined,
           }}
         >
           Press E to inspect
@@ -592,6 +594,8 @@ export default function App() {
             fontSize: '14px',
             pointerEvents: 'none',
             zIndex: 10,
+          
+            display: isTouchDevice ? 'none' : undefined,
           }}
         >
           Press E to Checkout
@@ -623,6 +627,7 @@ export default function App() {
     </div>
   )
 }
+
 
 
 

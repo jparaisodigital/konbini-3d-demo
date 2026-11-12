@@ -45,12 +45,23 @@ export default function ProductInspection({ product, onClose, onAddToCart }) {
           aria-label="Close product details"
           style={{
             position: 'absolute',
-            right: '20px',
-            top: '16px',
-            background: 'transparent',
-            border: 0,
-            fontSize: '24px',
+            right: '12px',
+            top: '12px',
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#ffffff',
+            color: '#234536',
+            border: '1px solid #d8d2c6',
+            borderRadius: '50%',
+            fontSize: '26px',
+            lineHeight: 1,
+            fontWeight: 'bold',
             cursor: 'pointer',
+            touchAction: 'manipulation',
+            zIndex: 2,
           }}
         >
           ×
@@ -118,6 +129,7 @@ export default function ProductInspection({ product, onClose, onAddToCart }) {
     </div>
   )
 }
+
 
 
 
